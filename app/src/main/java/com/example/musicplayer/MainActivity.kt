@@ -1,6 +1,8 @@
 package com.example.musicplayer
 
+import android.net.Uri
 import android.os.Bundle
+import android.util.Log
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.compose.animation.AnimatedContent
@@ -45,6 +47,8 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
+import androidx.compose.runtime.mutableLongStateOf
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -58,9 +62,11 @@ import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.Dp
+import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.fontscaling.MathUtils.lerp
 import androidx.compose.ui.unit.sp
+import androidx.media3.common.MediaItem
 import androidx.media3.exoplayer.ExoPlayer
 import com.example.musicplayer.ui.theme.MusicPlayerTheme
 import com.google.accompanist.systemuicontroller.rememberSystemUiController
@@ -68,7 +74,7 @@ import kotlinx.coroutines.delay
 import kotlin.math.absoluteValue
 
 class MainActivity : ComponentActivity() {
-    lateinit var player: ExoPlayer
+    private lateinit var player: ExoPlayer
 
     private val colors = listOf(
         Color(0xFFFF5A5A),
@@ -157,6 +163,53 @@ class MainActivity : ComponentActivity() {
                     }
                     LaunchedEffect(pagerState.currentPage) {
                         playingIndex.intValue = pagerState.currentPage
+                        player.seekTo(pagerState.currentPage, 0)
+                    }
+
+                    LaunchedEffect(Unit) {
+                        musics.forEach {
+                            val path = "android.resource://" + packageName + "/" + it.music
+                            val mediaItem = MediaItem.fromUri(Uri.parse(path))
+                            player.addMediaItem(mediaItem)
+                        }
+                    }
+                    player.prepare()
+
+                    val playing = remember {
+                        mutableStateOf(false)
+                    }
+                    val currentPosition = remember {
+                        mutableLongStateOf(0)
+                    }
+                    val totalDuration = remember {
+                        mutableLongStateOf(0)
+                    }
+                    val progressSize = remember {
+                        mutableStateOf(IntSize(0, 0))
+                    }
+                    LaunchedEffect(player.isPlaying) {
+                        playing.value = player.isPlaying
+                    }
+                    LaunchedEffect(player.currentPosition) {
+                        currentPosition.longValue = player.currentPosition
+                    }
+                    LaunchedEffect(player.duration) {
+                        if (player.duration > 0) {
+                            totalDuration.longValue = player.duration
+                        }
+                    }
+                    LaunchedEffect(player.currentMediaItemIndex) {
+                        playingIndex.intValue = player.currentMediaItemIndex
+                        pagerState.animateScrollToPage(
+                            playingIndex.intValue,
+                            animationSpec = tween(500)
+                        )
+                    }
+
+                    var percentReached =
+                        currentPosition.longValue.toFloat() / (if (totalDuration.longValue > 0) totalDuration.longValue else 0).toFloat()
+                    if (percentReached.isNaN()) {
+                        percentReached = 0f
                     }
 
                     Box(
@@ -286,13 +339,20 @@ class MainActivity : ComponentActivity() {
                                 verticalAlignment = Alignment.CenterVertically
                             ) {
                                 Control(icon = R.drawable.ic_fast_rewind, size = 60.dp, onClick = {
-
+                                    player.seekToPreviousMediaItem()
                                 })
-                                Control(icon = R.drawable.ic_play, size = 80.dp, onClick = {
-
-                                })
-                                Control(icon =R.drawable.ic_fast_forward , size = 60.dp, onClick = {
-
+                                Control(
+                                    icon = if (playing.value) R.drawable.ic_pause else R.drawable.ic_play,
+                                    size = 80.dp,
+                                    onClick = {
+                                        if (playing.value) {
+                                            player.pause()
+                                        } else {
+                                            player.play()
+                                        }
+                                    })
+                                Control(icon = R.drawable.ic_fast_forward, size = 60.dp, onClick = {
+                                    player.seekToNextMediaItem()
                                 })
                             }
 
@@ -307,13 +367,14 @@ class MainActivity : ComponentActivity() {
 
 @Composable
 fun Control(icon: Int, size: Dp, onClick: () -> Unit) {
-    Box(modifier = Modifier
-        .size(size)
-        .clip(CircleShape)
-        .background(Color.White)
-        .clickable {
-            onClick
-        }, contentAlignment = Alignment.Center
+    Box(
+        modifier = Modifier
+            .size(size)
+            .clip(CircleShape)
+            .background(Color.White)
+            .clickable {
+                onClick()
+            }, contentAlignment = Alignment.Center
     ) {
         Icon(
             modifier = Modifier.size(size / 2),
