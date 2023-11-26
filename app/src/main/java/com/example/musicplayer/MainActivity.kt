@@ -131,6 +131,9 @@ class MainActivity : ComponentActivity() {
                     val playingIndex = remember {
                         mutableIntStateOf(0)
                     }
+                    LaunchedEffect(pagerState.currentPage){
+                        playingIndex.intValue = pagerState.currentPage
+                    }
 
                     Box(
                         modifier = Modifier
