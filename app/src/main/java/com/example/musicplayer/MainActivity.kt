@@ -169,8 +169,8 @@ class MainActivity : ComponentActivity() {
                                             scaleX = scaleLerp
                                             scaleY = scaleLerp
                                         }
-                                        .border(3.dp, Color.White, CircleShape)
-                                        .padding(8.dp),
+                                        .border(2.dp, Color.White, CircleShape)
+                                        .padding(6.dp),
                                     shape = CircleShape
                                 ) {
                                     Image(
