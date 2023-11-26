@@ -29,13 +29,16 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.fontscaling.MathUtils.lerp
 import com.example.musicplayer.ui.theme.MusicPlayerTheme
 import com.google.accompanist.systemuicontroller.rememberSystemUiController
 import kotlinx.coroutines.delay
+import kotlin.math.absoluteValue
 
 class MainActivity : ComponentActivity() {
     private val colors = listOf(
@@ -145,7 +148,25 @@ class MainActivity : ComponentActivity() {
                             ) { page ->
                                 Card(
                                     modifier = Modifier
-                                        .size((configuration.screenWidthDp / (1.7)).dp),
+                                        .size((configuration.screenWidthDp / (1.7)).dp)
+                                        .graphicsLayer {
+                                            val pageOffset = (
+                                                    (pagerState.currentPage - page) + pagerState.currentPageOffsetFraction
+                                                    ).absoluteValue
+                                            val alphaLerp = lerp(
+                                                start = 0.4f,
+                                                stop = 1f,
+                                                amount = 1f - pageOffset.coerceIn(0f, 1f)
+                                            )
+                                            val scaleLerp = lerp(
+                                                start = 0.5f,
+                                                stop = 1f,
+                                                amount = 1f - pageOffset.coerceIn(0f, .5f)
+                                            )
+                                            alpha = alphaLerp
+                                            scaleX = scaleLerp
+                                            scaleY = scaleLerp
+                                        },
                                     shape = CircleShape
                                 ) {
                                     Image(
