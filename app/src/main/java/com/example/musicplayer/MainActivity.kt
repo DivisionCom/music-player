@@ -17,6 +17,8 @@ import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
+import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
@@ -35,9 +37,11 @@ import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Card
+import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
+import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
@@ -53,6 +57,7 @@ import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.fontscaling.MathUtils.lerp
 import androidx.compose.ui.unit.sp
@@ -268,6 +273,24 @@ class MainActivity : ComponentActivity() {
                                     textAlign = TextAlign.Center
                                 )
                             }
+                            Spacer(modifier = Modifier.height(24.dp))
+                            Row(
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .padding(horizontal = 32.dp),
+                                horizontalArrangement = Arrangement.SpaceEvenly,
+                                verticalAlignment = Alignment.CenterVertically
+                            ) {
+                                Control(icon = R.drawable.ic_fast_rewind, size = 60.dp, onClick = {
+
+                                })
+                                Control(icon = R.drawable.ic_play, size = 80.dp, onClick = {
+
+                                })
+                                Control(icon =R.drawable.ic_fast_forward , size = 60.dp, onClick = {
+
+                                })
+                            }
 
                         }
 
@@ -275,5 +298,24 @@ class MainActivity : ComponentActivity() {
                 }
             }
         }
+    }
+}
+
+@Composable
+fun Control(icon: Int, size: Dp, onClick: () -> Unit) {
+    Box(modifier = Modifier
+        .size(size)
+        .clip(CircleShape)
+        .background(Color.White)
+        .clickable {
+            onClick
+        }, contentAlignment = Alignment.Center
+    ) {
+        Icon(
+            modifier = Modifier.size(size / 2),
+            painter = painterResource(id = icon),
+            tint = Color(0xff414141),
+            contentDescription = null
+        )
     }
 }
