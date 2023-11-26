@@ -12,8 +12,10 @@ import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.pager.HorizontalPager
@@ -23,6 +25,7 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material3.Card
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
+import androidx.compose.material3.Text
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
@@ -37,6 +40,7 @@ import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.fontscaling.MathUtils.lerp
+import androidx.compose.ui.unit.sp
 import com.example.musicplayer.ui.theme.MusicPlayerTheme
 import com.google.accompanist.systemuicontroller.rememberSystemUiController
 import kotlinx.coroutines.delay
@@ -124,6 +128,9 @@ class MainActivity : ComponentActivity() {
                     uiController.setNavigationBarColor(animatedColor)
 
                     val pagerState = rememberPagerState(pageCount = { musics.count() })
+                    val playingIndex = remember {
+                        mutableIntStateOf(0)
+                    }
 
                     Box(
                         modifier = Modifier
@@ -141,6 +148,10 @@ class MainActivity : ComponentActivity() {
 
 
                         Column(horizontalAlignment = Alignment.CenterHorizontally) {
+
+                            Text(text = musics[playingIndex.intValue].name, fontSize = 52.sp,
+                                color = Color.White)
+                            Spacer(modifier = Modifier.height(32.dp))
 
                             HorizontalPager(
                                 modifier = Modifier.fillMaxWidth(),
