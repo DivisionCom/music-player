@@ -20,6 +20,7 @@ import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -57,7 +58,9 @@ import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.graphics.luminance
+import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.style.TextAlign
@@ -296,7 +299,7 @@ class MainActivity : ComponentActivity() {
                                 verticalAlignment = Alignment.CenterVertically
                             ) {
                                 Text(
-                                    text = "00:00",
+                                    text = convertLongToText(currentPosition.longValue),
                                     modifier = Modifier.width(55.dp),
                                     color = textColor,
                                     textAlign = TextAlign.Center
@@ -309,13 +312,24 @@ class MainActivity : ComponentActivity() {
                                         .height(8.dp)
                                         .padding(horizontal = 8.dp)
                                         .clip(CircleShape)
-                                        .background(Color.White),
+                                        .background(Color.White)
+                                        .onGloballyPositioned {
+                                            progressSize.value = it.size
+                                        }
+                                        .pointerInput(Unit) {
+                                            detectTapGestures {
+                                                val xPos = it.x
+                                                val whereIClicked =
+                                                    (xPos.toLong() * totalDuration.longValue) / progressSize.value.width.toLong()
+                                                player.seekTo(whereIClicked)
+                                            }
+                                        },
                                     contentAlignment = Alignment.CenterStart
                                 ) {
                                     // Status Box
                                     Box(
                                         modifier = Modifier
-                                            .fillMaxWidth(fraction = .5f)
+                                            .fillMaxWidth(fraction = if(playing.value) percentReached else 0f)
                                             .fillMaxHeight()
                                             .clip(
                                                 RoundedCornerShape(8.dp)
@@ -324,7 +338,7 @@ class MainActivity : ComponentActivity() {
                                     )
                                 }
                                 Text(
-                                    text = "00:00",
+                                    text = convertLongToText(totalDuration.longValue),
                                     modifier = Modifier.width(55.dp),
                                     color = textColor,
                                     textAlign = TextAlign.Center
@@ -383,4 +397,22 @@ fun Control(icon: Int, size: Dp, onClick: () -> Unit) {
             contentDescription = null
         )
     }
+}
+
+fun convertLongToText(long: Long): String{
+    val sec = long/1000
+    val minutes = sec/60
+    val seconds = sec%60
+
+    val minutesString = if (minutes < 10){
+        "0${minutes}"
+    }else{
+        minutes.toString()
+    }
+    val secondsString = if (seconds < 10){
+        "0${seconds}"
+    }else{
+        seconds.toString()
+    }
+    return "$minutesString:$secondsString"
 }
