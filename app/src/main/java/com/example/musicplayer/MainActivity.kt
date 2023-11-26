@@ -43,6 +43,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.graphicsLayer
+import androidx.compose.ui.graphics.luminance
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.res.painterResource
@@ -160,6 +161,13 @@ class MainActivity : ComponentActivity() {
 
                         Column(horizontalAlignment = Alignment.CenterHorizontally) {
 
+                            val textColor by animateColorAsState(
+                                targetValue = if (animatedColor.luminance() > .5f) Color(
+                                    0xff414141
+                                ) else Color.White,
+                                animationSpec = tween(2000), label = ""
+                            )
+
                             AnimatedContent(
                                 targetState = playingIndex.intValue,
                                 label = "",
@@ -168,7 +176,7 @@ class MainActivity : ComponentActivity() {
                                 }) {
                                 Text(
                                     text = musics[it].name, fontSize = 52.sp,
-                                    color = Color.White
+                                    color = textColor
                                 )
                             }
                             Spacer(modifier = Modifier.height(32.dp))
