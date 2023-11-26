@@ -61,12 +61,15 @@ import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.fontscaling.MathUtils.lerp
 import androidx.compose.ui.unit.sp
+import androidx.media3.exoplayer.ExoPlayer
 import com.example.musicplayer.ui.theme.MusicPlayerTheme
 import com.google.accompanist.systemuicontroller.rememberSystemUiController
 import kotlinx.coroutines.delay
 import kotlin.math.absoluteValue
 
 class MainActivity : ComponentActivity() {
+    lateinit var player: ExoPlayer
+
     private val colors = listOf(
         Color(0xFFFF5A5A),
         Color(0xFFFF9C5A),
@@ -111,6 +114,7 @@ class MainActivity : ComponentActivity() {
     @OptIn(ExperimentalFoundationApi::class, ExperimentalAnimationApi::class)
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        player = ExoPlayer.Builder(this).build()
         setContent {
             MusicPlayerTheme {
                 // A surface container using the 'background' color from the theme
