@@ -3,8 +3,16 @@ package com.example.musicplayer
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
+import androidx.compose.animation.AnimatedContent
+import androidx.compose.animation.ExperimentalAnimationApi
 import androidx.compose.animation.animateColorAsState
 import androidx.compose.animation.core.tween
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
+import androidx.compose.animation.scaleIn
+import androidx.compose.animation.scaleOut
+import androidx.compose.animation.togetherWith
+import androidx.compose.animation.with
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
@@ -88,7 +96,7 @@ class MainActivity : ComponentActivity() {
     )
 
 
-    @OptIn(ExperimentalFoundationApi::class)
+    @OptIn(ExperimentalFoundationApi::class, ExperimentalAnimationApi::class)
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContent {
@@ -131,7 +139,7 @@ class MainActivity : ComponentActivity() {
                     val playingIndex = remember {
                         mutableIntStateOf(0)
                     }
-                    LaunchedEffect(pagerState.currentPage){
+                    LaunchedEffect(pagerState.currentPage) {
                         playingIndex.intValue = pagerState.currentPage
                     }
 
@@ -152,8 +160,17 @@ class MainActivity : ComponentActivity() {
 
                         Column(horizontalAlignment = Alignment.CenterHorizontally) {
 
-                            Text(text = musics[playingIndex.intValue].name, fontSize = 52.sp,
-                                color = Color.White)
+                            AnimatedContent(
+                                targetState = playingIndex.intValue,
+                                label = "",
+                                transitionSpec = {
+                                    (scaleIn() + fadeIn()) togetherWith (scaleOut() + fadeOut())
+                                }) {
+                                Text(
+                                    text = musics[it].name, fontSize = 52.sp,
+                                    color = Color.White
+                                )
+                            }
                             Spacer(modifier = Modifier.height(32.dp))
 
                             HorizontalPager(
