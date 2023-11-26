@@ -5,9 +5,20 @@ import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.compose.animation.animateColorAsState
 import androidx.compose.animation.core.tween
+import androidx.compose.foundation.ExperimentalFoundationApi
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.pager.HorizontalPager
+import androidx.compose.foundation.pager.PageSize
+import androidx.compose.foundation.pager.rememberPagerState
+import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.material3.Card
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.runtime.LaunchedEffect
@@ -18,6 +29,10 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalConfiguration
+import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.unit.dp
 import com.example.musicplayer.ui.theme.MusicPlayerTheme
 import com.google.accompanist.systemuicontroller.rememberSystemUiController
 import kotlinx.coroutines.delay
@@ -45,8 +60,26 @@ class MainActivity : ComponentActivity() {
         Color(0xFF4E146D),
         Color(0xFF721545),
     )
+    private val musics = listOf(
+        Music(
+            name = "See you again",
+            cover = R.drawable.cover1,
+            music = R.raw.music1
+        ),
+        Music(
+            name = "Heat waves",
+            cover = R.drawable.cover2,
+            music = R.raw.music2
+        ),
+        Music(
+            name = "Close eyes",
+            cover = R.drawable.cover3,
+            music = R.raw.music3
+        ),
+    )
 
 
+    @OptIn(ExperimentalFoundationApi::class)
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContent {
@@ -85,14 +118,48 @@ class MainActivity : ComponentActivity() {
                     uiController.setStatusBarColor(animatedColor, darkIcons = false)
                     uiController.setNavigationBarColor(animatedColor)
 
-                    Box(modifier = Modifier
-                        .fillMaxSize()
-                        .background(Brush.linearGradient(
-                            listOf(
-                                animatedColor,
-                                animatedDarkColor
-                            )
-                        )), contentAlignment = Alignment.Center){
+                    val pagerState = rememberPagerState(pageCount = { musics.count() })
+
+                    Box(
+                        modifier = Modifier
+                            .fillMaxSize()
+                            .background(
+                                Brush.linearGradient(
+                                    listOf(
+                                        animatedColor,
+                                        animatedDarkColor
+                                    )
+                                )
+                            ), contentAlignment = Alignment.Center
+                    ) {
+                        val configuration = LocalConfiguration.current
+
+
+                        Column(horizontalAlignment = Alignment.CenterHorizontally) {
+
+                            HorizontalPager(
+                                modifier = Modifier.fillMaxWidth(),
+                                state = pagerState,
+                                pageSize = PageSize.Fixed((configuration.screenWidthDp / (1.7)).dp),
+                                contentPadding = PaddingValues(horizontal = 85.dp)
+                            ) { page ->
+                                Card(
+                                    modifier = Modifier
+                                        .size((configuration.screenWidthDp / (1.7)).dp),
+                                    shape = CircleShape
+                                ) {
+                                    Image(
+                                        painter = painterResource(id = musics[page].cover),
+                                        contentDescription = null,
+                                        contentScale = ContentScale.Crop,
+                                        modifier = Modifier.fillMaxSize()
+                                    )
+                                }
+
+
+                            }
+
+                        }
 
                     }
                 }
